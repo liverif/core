@@ -1,0 +1,8 @@
+<FindBugsFilter>
+	<Match>
+		<Or>
+			<Confidence value="1"/>
+			<Confidence value="2"/>
+		</Or>
+	</Match>
+</FindBugsFilter>
