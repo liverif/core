@@ -1,8 +1,8 @@
 package it.liverif.core.repository.predicates;
 
 import it.liverif.core.repository.APredicate;
+import it.liverif.core.web.beans.SearchField;
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.view.list.SearchField;
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -20,7 +20,7 @@ public class LocalDatePredicate<T extends AModelBean> extends APredicate<T> {
     MessageSource messageSource;
 
     public Predicate toPredicate(Root<T> root, CriteriaBuilder criteriaBuilder, SearchField searchField) {
-        String dateFormat = "yyyy-MM-dd";
+        String dateFormat = "yyyy-MM-dd";//messageSource.getMessage("format.date.pattern", null, LocaleContextHolder.getLocale());
 
         switch (searchField.getOperation()) {
             case SearchField.EMPTY:

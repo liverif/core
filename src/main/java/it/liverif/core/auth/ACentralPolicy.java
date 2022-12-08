@@ -1,7 +1,7 @@
 package it.liverif.core.auth;
 
 import it.liverif.core.auth.beans.UserToken;
-import it.liverif.core.controller.beans.StackWebBean;
+import it.liverif.core.web.beans.StackWebBean;
 import org.springframework.data.util.Pair;
 
 public abstract class ACentralPolicy {

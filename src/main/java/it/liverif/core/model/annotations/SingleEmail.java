@@ -1,8 +1,8 @@
 package it.liverif.core.model.annotations;
 
-import it.liverif.core.validator.SingleEmailValidator;
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import it.liverif.core.model.validator.SingleEmailValidator;
 import java.lang.annotation.*;
 
 @Documented

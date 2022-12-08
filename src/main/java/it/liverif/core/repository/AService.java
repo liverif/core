@@ -2,9 +2,9 @@ package it.liverif.core.repository;
 
 import it.liverif.core.auth.beans.UserToken;
 import it.liverif.core.exeptions.DatabaseException;
-import it.liverif.core.view.detail.ADetailResponse;
-import it.liverif.core.view.list.AListResponse;
-import it.liverif.core.view.list.SearchField;
+import it.liverif.core.web.beans.SearchField;
+import it.liverif.core.web.view.detail.ADetailResponse;
+import it.liverif.core.web.view.list.AListResponse;
 import it.liverif.core.repository.predicates.*;
 import it.liverif.core.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;

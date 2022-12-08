@@ -3,7 +3,6 @@ package it.liverif.core.format;
 import org.springframework.util.StringUtils;
 import org.springframework.format.Formatter;
 import org.springframework.lang.Nullable;
-
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

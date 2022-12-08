@@ -2,8 +2,8 @@ package it.liverif.core.repository;
 
 import it.liverif.core.auth.beans.UserToken;
 import it.liverif.core.model.annotations.FieldOrder;
-import it.liverif.core.controller.beans.SelectItem;
 import it.liverif.core.repository.generator.LoggedUserGenerator;
+import it.liverif.core.web.beans.SelectItem;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;

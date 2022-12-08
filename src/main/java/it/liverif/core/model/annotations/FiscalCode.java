@@ -1,8 +1,8 @@
 package it.liverif.core.model.annotations;
 
-import it.liverif.core.validator.FiscalCodeValidator;
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import it.liverif.core.model.validator.FiscalCodeValidator;
 import java.lang.annotation.*;
 
 @Documented

@@ -1,8 +1,8 @@
 package it.liverif.core.repository.predicates;
 
 import it.liverif.core.repository.APredicate;
+import it.liverif.core.web.beans.SearchField;
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.view.list.SearchField;
 import org.springframework.util.StringUtils;
 import org.springframework.stereotype.Component;
 import javax.persistence.criteria.CriteriaBuilder;

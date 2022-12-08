@@ -2,8 +2,8 @@ package it.liverif.core.utils;
 
 import it.liverif.core.model.annotations.EntityTransient;
 import it.liverif.core.repository.TableNameReserved;
-import it.liverif.core.view.detail.ADetailResponse;
-import it.liverif.core.view.list.AListResponse;
+import it.liverif.core.web.view.detail.ADetailResponse;
+import it.liverif.core.web.view.list.AListResponse;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;

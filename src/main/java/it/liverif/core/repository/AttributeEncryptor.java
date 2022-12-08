@@ -8,7 +8,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.AttributeConverter;
-
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.Key;
