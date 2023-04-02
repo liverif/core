@@ -48,12 +48,11 @@ public class StackWebEngine {
         }
     }
 
-    private void back() throws Exception {
+    private void back() {
         log.debug("IN");
         ArrayList<StackWebBean> stack = (ArrayList) request.getSession().getAttribute(STACKWEB);
         if (stack.size() > 0) {
             StackWebBean sb = stack.get(stack.size() - 1);
-            //request.getSession().removeAttribute(HttpSessionInfo.PAGE_SCROLLPOSITION_PREFIX+sb.getLabelPage());
             stack.remove(stack.size() - 1);
             if (stack.size() > 0) {
                 sb = stack.get(stack.size() - 1);
@@ -66,7 +65,7 @@ public class StackWebEngine {
         }
     }
 
-    private void skip(StackWebBean sb) throws Exception {
+    private void skip(StackWebBean sb) throws StackWebException {
         log.debug("IN");
         ArrayList<StackWebBean> stack = (ArrayList) request.getSession().getAttribute(STACKWEB);
         Set<String> memory = new HashSet();
@@ -82,15 +81,17 @@ public class StackWebEngine {
                 StackWebBean sbm = stack.get(i);
                 if ((sbm.getTarget()+"#"+sbm.getTargetAction()).equals(sb.getTarget()+"#"+sb.getTargetAction())) {
                     search = i;
-                    //sbm.getParams().clear();
                     for (Iterator it = sb.getParams().entrySet().iterator(); it.hasNext(); ) {
                         Map.Entry entry = (Map.Entry)it.next();
                         String key =(String) entry.getKey();
                         String value =(String) entry.getValue();
-                        //if(!key.equals(StackWebBean.PARAMETER_ACTION) && !key.equals(StackWebBean.PARAMETER_METHOD)){
-                        if(!key.equals(StackWebBean.PARAMETER_ACTION)){
-                            sbm.getParams().put(key,value);
-                        }
+                        if(!key.equals(StackWebBean.PARAMETER_ACTION)) sbm.getParams().put(key,value);
+                    }
+                    for (Iterator it = sbm.getParams().entrySet().iterator(); it.hasNext(); ) {
+                        Map.Entry entry = (Map.Entry)it.next();
+                        String key =(String) entry.getKey();
+                        String value =(String) entry.getValue();
+                        sb.getParams().put(key,value);
                     }
                     request.setAttribute(STACKWEB, sb);
                     break;
@@ -108,11 +109,11 @@ public class StackWebEngine {
             }
         } else {
             clean();
-            throw new Exception("StackWeb error: "+sb.getTarget()+"#"+sb.getTargetAction());
+            throw new StackWebException("StackWeb error: "+sb.getTarget()+"#"+sb.getTargetAction());
         }
     }
 
-    private void addOrUpdate(StackWebBean sb) throws Exception {
+    private void addOrUpdate(StackWebBean sb) throws StackWebException {
         log.debug("IN");
         ArrayList<StackWebBean> stack = (ArrayList) request.getSession().getAttribute(STACKWEB);
         Set<String> memory = new HashSet();
@@ -133,7 +134,7 @@ public class StackWebEngine {
             }
             if (search == -1) {
                 clean();
-                throw new Exception("StackWeb not found: "+sb.getTarget()+"#"+sb.getTargetAction());
+                throw new StackWebException("StackWeb not found: "+sb.getTarget()+"#"+sb.getTargetAction());
             } else {
                 if (stack.size() > 0) {
                     for (int i = stack.size() - 1; i >= search; i--) {
@@ -145,7 +146,6 @@ public class StackWebEngine {
         StackWebBean sbCopy=new StackWebBean();
         BeanUtils.copyProperties(sb,sbCopy);
         if(sbCopy.getParams().containsKey(StackWebBean.PARAMETER_ACTION)) sbCopy.getParams().remove(StackWebBean.PARAMETER_ACTION);
-        //if(sbCopy.getParams().containsKey(StackWebBean.PARAMETER_METHOD)) sbCopy.getParams().remove(StackWebBean.PARAMETER_METHOD);
         stack.add(sbCopy);
         
         request.setAttribute(STACKWEB, sb);
@@ -207,7 +207,7 @@ public class StackWebEngine {
             String random = RandomStringUtils.generateAlfanumeric(10);
             stackWebBean.setRandom(random);
             stackWebBean.setStackAction(Action.SKIP);
-            stackWebBean.setLinkSkip(null);// Questo non va tolto
+            stackWebBean.setLinkSkip(null);
             String link = jsonAction.encode(stackWebBean);
             stackWebBean.setLinkSkip(stackContext + "/?" + REQUEST_STACKWEB + "=" + link);
         }
@@ -238,7 +238,7 @@ public class StackWebEngine {
         return stackWebBean;
     }
 
-    public StackWebBean searchStackWebBean(String target, String targetAction) throws Exception {
+    public StackWebBean searchStackWebBean(String target, String targetAction) {
         ArrayList<StackWebBean> stack = (ArrayList) request.getSession().getAttribute(STACKWEB);
         Set<String> memory = new HashSet();
         if (stack.size() > 0) {
@@ -258,7 +258,7 @@ public class StackWebEngine {
         return null;
     }
 
-    public StackWebBean lastStackWebBean() throws Exception {
+    public StackWebBean lastStackWebBean() {
         ArrayList<StackWebBean> stack = (ArrayList) request.getSession().getAttribute(STACKWEB);
         if(stack==null || stack.isEmpty()) return null;
         return stack.get(stack.size()-1);

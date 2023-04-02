@@ -1,54 +1,87 @@
 package it.liverif.core.repository;
 
-import org.springframework.beans.factory.annotation.Value;
+import it.liverif.core.component.crypt.ACryptSyncAES;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.SerializationUtils;
+import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.persistence.AttributeConverter;
-import java.nio.charset.Charset;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.util.Base64;
 
+@Slf4j
 @Component
-public class AttributeEncryptor implements AttributeConverter<String, String> {
+public class AttributeEncryptor extends ACryptSyncAES implements AttributeConverter<String, String>{
 
-    private static final String AESKey = "AES";
-    private static final String AESAlg = "AES/ECB/PKCS5Padding";
-    
-    @Value("${app.key.encrypt}")
+    @Autowired
+    Environment environment;
+
     private String secret;
-    private Key key;
-    private Cipher cipher;
+    private IvParameterSpec ips;
+    private SecretKey aesKey;
 
     @PostConstruct
-    public void AttributeEncryptor() throws Exception {
-        key = new SecretKeySpec(secret.getBytes(Charset.defaultCharset()), AESKey);
-        cipher = Cipher.getInstance(AESAlg);
+    public void init(){
+        secret=environment.getProperty("app.key.encrypt");
+        if(StringUtils.hasText(secret)) {
+            ips = generateIVfromKey(secret);
+            aesKey = getKey(secret);
+        }else{
+            log.warn("app.key.encrypt not defined");
+        }
     }
 
     @Override
-    public String convertToDatabaseColumn(String attribute) {
-        if (attribute==null) return null;
+    public String convertToDatabaseColumn(String value) {
+        if (value==null) return null;
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            return Base64.getEncoder().encodeToString(cipher.doFinal(attribute.getBytes(Charset.defaultCharset())));
+            return enc(value);
         } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public String convertToEntityAttribute(String dbData) {
-        if (dbData==null) return null;
+    public String convertToEntityAttribute(String value) {
+        if (value==null) return null;
         try {
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            return new String(cipher.doFinal(Base64.getDecoder().decode(dbData)),Charset.defaultCharset());
+            return dec(value);
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
+
+    public String enc(Serializable value) throws Exception{
+        byte[] data = SerializationUtils.serialize(value);
+        ByteArrayInputStream is = new ByteArrayInputStream(data);
+        ByteArrayOutputStream os= new ByteArrayOutputStream();
+        encrypt(aesKey, is, os, ips);
+        String result= Base64.getEncoder().encodeToString(os.toByteArray());
+        return result;
+    }
+
+    public String dec(String value) throws Exception{
+        byte[] data = Base64.getDecoder().decode(value);
+        ByteArrayInputStream is = new ByteArrayInputStream(data);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        decrypt(aesKey, is, os, ips);
+        Object result= SerializationUtils.deserialize(os.toByteArray());
+        return String.valueOf(result);
+    }
+
+
 }

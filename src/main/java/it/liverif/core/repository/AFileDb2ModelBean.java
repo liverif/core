@@ -4,8 +4,6 @@ import com.sun.istack.NotNull;
 import it.liverif.core.model.annotations.FieldOrder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 

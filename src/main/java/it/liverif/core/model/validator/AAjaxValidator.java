@@ -1,7 +1,6 @@
 package it.liverif.core.model.validator;
 
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.repository.TableNameReserved;
 import it.liverif.core.utils.CommonUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ public abstract class AAjaxValidator<X, T extends AModelBean> {
         return StringUtils.uncapitalize(className);
     }
     
-    protected boolean entityInChange(T entityObj) throws Exception {
+    protected boolean entityInChange(T entityObj) {
         return (entityObj!=null && entityObj.getId()>0L);
     }
 

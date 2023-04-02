@@ -1,10 +1,9 @@
 package it.liverif.core.web.view.detail;
 
+import it.liverif.core.auth.AUserAuth;
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.repository.TableNameReserved;
 import it.liverif.core.utils.CommonUtils;
 import it.liverif.core.web.view.list.AListResponse;
-
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -12,7 +11,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.ParameterizedType;
 
-public class ASelect<T extends AModelBean,P extends ADetailResponse> {
+public class ASelect<T extends AModelBean,P extends ADetailResponse> extends AUserAuth {
 
     @Autowired
     MessageSource messageSource;
@@ -35,7 +34,7 @@ public class ASelect<T extends AModelBean,P extends ADetailResponse> {
         removeHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse(String modelName) throws Exception{
+    protected ADetailResponse getDetailResponse(String modelName) {
         ADetailResponse detailResponse = (ADetailResponse) getHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
         return detailResponse;
     }
@@ -44,7 +43,7 @@ public class ASelect<T extends AModelBean,P extends ADetailResponse> {
         removeHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
     }
 
-    protected P getDetailResponse() throws Exception{
+    protected P getDetailResponse() {
         return (P) getDetailResponse(modelName());
     }
 

@@ -18,7 +18,7 @@ public class LocalTimeFormatter implements Formatter<LocalTime> {
     }
 
     @Override
-    public @Nullable LocalTime parse(String text, Locale locale) throws ParseException {
+    public @Nullable LocalTime parse(String text, Locale locale) {
         if (!StringUtils.hasText(text)) return null;
         DateTimeFormatter dateFormat = createFormat(locale);
         return LocalTime.parse(text, dateFormat);

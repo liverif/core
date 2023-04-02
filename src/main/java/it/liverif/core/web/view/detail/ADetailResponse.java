@@ -1,13 +1,11 @@
 package it.liverif.core.web.view.detail;
 
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.repository.TableNameReserved;
 import it.liverif.core.utils.CommonUtils;
 import it.liverif.core.web.view.AAttribute;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
-
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,6 +81,10 @@ public abstract class ADetailResponse<T extends AModelBean,L extends AAttribute>
     public String getAjaxlink(String field){
         if (attribute.getParams().ajaxlink().containsKey(field)) return attribute.getParams().ajaxlink().get(field);
         return "";
+    }
+
+    public boolean entityInChange(){
+        return record != null && record.getId() > 0L;
     }
 
 }

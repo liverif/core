@@ -11,7 +11,6 @@ import it.liverif.core.utils.ZipUtils;
 import it.liverif.core.web.beans.*;
 import it.liverif.core.web.beans.MenuItem;
 import it.liverif.core.web.beans.StackWebBean;
-import it.liverif.core.web.view.AAction;
 import it.liverif.core.web.view.detail.ADetailResponse;
 import it.liverif.core.web.view.list.AListResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -22,22 +21,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.ui.ModelMap;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.*;
 
 @Slf4j
 public abstract class AController<T extends AModelBean, R extends AListResponse,P extends ADetailResponse> extends ABaseController<T,R,P> {
-
-    public static final String SCREENMODE = AAction.SCREENMODE;
     
     protected final ArrayList<MenuItem> menuItems = new ArrayList();
 
     @Autowired
     private ACentralPolicy centralPolicy;
     
-    public Map<String, ArrayList<MenuItem>> menu() throws Exception {
+    public Map<String, ArrayList<MenuItem>> menu() {
         Map<String, ArrayList<MenuItem>> menuGroup = new TreeMap();
 
         for(MenuItem item: menuItems) {
@@ -58,7 +53,7 @@ public abstract class AController<T extends AModelBean, R extends AListResponse,
         return menuGroup;
     }
 
-    public String stackExecute(ModelMap model) throws Exception{
+    public String stackExecute(ModelMap model) throws Exception {
         log.debug("request: " + request.getRequestURI());
 
         Map parameters=request.getParameterMap();
@@ -191,7 +186,7 @@ public abstract class AController<T extends AModelBean, R extends AListResponse,
         request.setAttribute(StackWebEngine.OVERWRITE_REQUEST_STACKWEB,stackWebBean);
     }
 
-    protected void createPublicFile(FileUpload fileUpload, AFileFsModelBean filefs) throws Exception {
+    protected void createPublicFile(FileUpload fileUpload, AFileFsModelBean filefs) throws Exception{
         String filename = FileUtils.sanitizeFilename(fileUpload.getFile().getOriginalFilename());
         FileUtils.createDirectory(publicRepository(), tableName());
         filefs.setRepository(publicRepository());
@@ -205,7 +200,7 @@ public abstract class AController<T extends AModelBean, R extends AListResponse,
         filefs.setContenttype(fileUpload.getFile().getContentType());
     }
 
-    protected void createPrivateFile(FileUpload fileUpload, AFileFsModelBean filefs) throws Exception {
+    protected void createPrivateFile(FileUpload fileUpload, AFileFsModelBean filefs) throws Exception{
         String filename = FileUtils.sanitizeFilename(fileUpload.getFile().getOriginalFilename());
         FileUtils.createDirectory(privateRepository(), tableName());
         filefs.setRepository(privateRepository());
@@ -246,7 +241,4 @@ public abstract class AController<T extends AModelBean, R extends AListResponse,
         return downloadFile(filebytes, filename, contenttype);
     }
 
-    protected void setScreenMode(String screenmode) {
-        setHttpSession(SCREENMODE,screenmode);
-    }
 }

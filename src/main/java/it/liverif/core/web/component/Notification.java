@@ -14,12 +14,7 @@ public class Notification {
     protected ArrayList<String> errorList=new ArrayList();
 
     public Integer getAllNumberMessages(){ return infoList.size()+warningList.size()+errorList.size(); }
-    
-    //Errors
-    public void addErrors(Errors err) throws Exception{
 
-
-    }
     public void addError(String error){add(error,errorList);}
     public boolean hasErrors(){return getError().size()>0;}
     public ArrayList<String> getError() { return (ArrayList<String>) errorList.clone(); }

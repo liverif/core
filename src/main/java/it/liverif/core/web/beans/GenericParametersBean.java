@@ -2,7 +2,6 @@ package it.liverif.core.web.beans;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,13 +1,11 @@
 package it.liverif.core.web.view;
 
-import it.liverif.core.auth.beans.UserToken;
+import it.liverif.core.auth.ACentralPolicy;
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.repository.TableNameReserved;
 import it.liverif.core.utils.CommonUtils;
 import it.liverif.core.web.beans.FieldTypeBean;
 import it.liverif.core.web.beans.StackWebBean;
 import it.liverif.core.web.controller.StackWebEngine;
-import it.liverif.core.web.view.AAttribute;
 import it.liverif.core.web.view.detail.ADetailResponse;
 import it.liverif.core.web.view.detail.AView;
 import it.liverif.core.web.view.detail.DataAccess;
@@ -16,10 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import org.springframework.data.util.Pair;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.ModelMap;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
@@ -32,8 +26,6 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
     @Autowired
     protected Environment environment;
 
-    public static final String SCREENMODE = "screenmode";
-    
     protected Class<T> modelEntityClass(){
         return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
@@ -59,7 +51,7 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
         request.getSession().removeAttribute(attribute);
     }
 
-    protected R getListResponse() throws Exception{
+    protected R getListResponse() {
         return (R) getListResponse(modelName());
     }
 
@@ -72,7 +64,7 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
         removeHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse(String modelName) throws Exception{
+    protected ADetailResponse getDetailResponse(String modelName){
         ADetailResponse detailResponse = (ADetailResponse) getHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
         return detailResponse;
     }
@@ -81,7 +73,7 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
         removeHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
     }
 
-    protected P getDetailResponse() throws Exception{
+    protected P getDetailResponse() {
         return (P) getDetailResponse(modelName());
     }
 
@@ -109,41 +101,37 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
 
     public abstract Pair<List<String>,String> rowActionList(L attribute,ModelMap model, T bean, String[] params) throws Exception;
 
-    protected String getScreenMode() {
-        return (String) getHttpSession(SCREENMODE);
-    }
-
-    protected boolean entityInChange() throws Exception {
+    protected boolean entityInChange() {
         P detailResponse=getDetailResponse();
         return (detailResponse.getRecord()!=null && detailResponse.getRecord().getId()>0L);
     }
 
-    protected void fieldNoNewRow(String field) throws Exception {
+    protected void fieldNoNewRow(String field) {
         getDetailResponse().getAttribute().getParams().newrow().put(field,false);
     }
 
-    protected void fieldNewRow(String field) throws Exception {
+    protected void fieldNewRow(String field) {
         getDetailResponse().getAttribute().getParams().newrow().put(field,true);
     }
 
-    protected void fieldReadonly(String field) throws Exception {
+    protected void fieldReadonly(String field) {
         getDetailResponse().getAttribute().getParams().access().put(field, DataAccess.VIEW_READONLY);
     }
 
-    protected void fieldNoView(String field) throws Exception {
+    protected void fieldNoView(String field) {
         getDetailResponse().getAttribute().getParams().newrow().put(field,true);
         getDetailResponse().getAttribute().getParams().access().put(field, DataAccess.NULLSTYLE);
     }
 
-    protected void fieldViewData(String field) throws Exception {
+    protected void fieldViewData(String field) {
         getDetailResponse().getAttribute().getParams().access().put(field, DataAccess.VIEW_DATA);
     }
 
-    protected void fieldViewRequiredData(String field) throws Exception {
+    protected void fieldViewRequiredData(String field) {
         getDetailResponse().getAttribute().getParams().access().put(field, DataAccess.VIEW_REQUIRED_DATA);
     }
 
-    public void fieldAllFieldsToReadonly() throws Exception {
+    public void fieldAllFieldsToReadonly() {
         for (String field: getDetailResponse().getAttribute().getFields()) {
             DataAccess dataAccess=getDetailResponse().getAttribute().getParams().access().get(field);
             if (dataAccess.equals(DataAccess.VIEW_DATA) ||
@@ -155,7 +143,7 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
         }
     }
 
-    public void fieldAllFieldsWitdhLimit(Integer limit) throws Exception {
+    public void fieldAllFieldsWitdhLimit(Integer limit) {
         AAttribute attribute=getDetailResponse().getAttribute();
         HashMap<String, FieldTypeBean> types=attribute.getType();
         for (Iterator it = types.entrySet().iterator(); it.hasNext(); ) {
@@ -171,7 +159,7 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
     }
 
 
-    public void fieldAllFieldsToNullStyle() throws Exception {
+    public void fieldAllFieldsToNullStyle() {
         for (String field:  getDetailResponse().getAttribute().getFields()) {
             getDetailResponse().getAttribute().getParams().access().put(field, DataAccess.NULLSTYLE);
         }
@@ -182,30 +170,19 @@ public abstract class AAction<T extends AModelBean, L extends AAttribute, R exte
         return detailResponse.getRecord().getId();
     }
 
-    protected UserToken getUser() {
-        UserToken userToken=new UserToken();
-        Authentication currentAuth= SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth!=null){
-            Object principal = currentAuth.getPrincipal();
-            if (principal instanceof UserDetails) {
-                UserDetails userDetail=(UserDetails) principal;
-                userToken.setUsername(userDetail.getUsername());
-                for(GrantedAuthority ga: userDetail.getAuthorities()){
-                    userToken.getRoles().add(ga.getAuthority().substring("ROLE_".length()));
-                }
-            } else {
-                userToken.setUsername(principal.toString());
-            }
-        }
-        return userToken;
-    }
-
     protected boolean containHttpSession(String attribute) {
         return request.getSession().getAttribute(attribute) != null;
     }
 
     protected boolean notContainHttpSession(String attribute) {
         return request.getSession().getAttribute(attribute) == null;
+    }
+
+    protected String getPolicy(){
+        if (request.getAttribute(ACentralPolicy.REQUEST_POLICY)!=null)
+            return (String) request.getAttribute(ACentralPolicy.REQUEST_POLICY);
+        else
+            return "";
     }
 
 }

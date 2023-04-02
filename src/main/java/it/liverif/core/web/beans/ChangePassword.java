@@ -1,6 +1,5 @@
 package it.liverif.core.web.beans;
 
-import it.liverif.core.model.annotations.EntityTransient;
 import lombok.Getter;
 import lombok.Setter;
 

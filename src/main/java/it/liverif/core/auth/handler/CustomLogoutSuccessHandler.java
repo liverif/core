@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -23,9 +22,11 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
         HttpSession session = request.getSession(false);
         log.info("LOGOUT - USER: " + ((User) authentication.getPrincipal()).getUsername() +
+                //" * SESSION-ID:" + session.getId() +
                 " * IP:" + LogUtils.getClientIP(request) +
                 " * USER-AGENT:" + LogUtils.getUserAgent(request));
 
+        //session.invalidate();
         response.setStatus(HttpStatus.OK.value());
         response.sendRedirect(URL);
     }

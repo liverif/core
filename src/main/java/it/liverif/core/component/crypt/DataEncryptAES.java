@@ -2,7 +2,6 @@ package it.liverif.core.component.crypt;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
-
 import javax.crypto.spec.IvParameterSpec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

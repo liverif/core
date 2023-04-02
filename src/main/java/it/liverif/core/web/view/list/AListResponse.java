@@ -1,7 +1,6 @@
 package it.liverif.core.web.view.list;
 
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.repository.TableNameReserved;
 import it.liverif.core.utils.CommonUtils;
 import it.liverif.core.web.beans.SearchField;
 import it.liverif.core.web.view.AAttribute;
@@ -32,6 +31,7 @@ public abstract class AListResponse<T extends AModelBean,L extends AAttribute> {
     private List<String> listColumn=new ArrayList<>();
     private Map<String,String> cssRow=new HashMap<>();
     private Map<String,String> cssColumn=new HashMap<>();
+    private Map<String,String> cssHeaderColumn=new HashMap<>();
 
     private String htmlHeader="";
     private String htmlFooter="";
@@ -67,6 +67,10 @@ public abstract class AListResponse<T extends AModelBean,L extends AAttribute> {
     
     public AListResponse(L attribute){
         setAttribute(attribute);
+    }
+
+    public String getCssHeaderColumn(String field){
+        return cssHeaderColumn.get(field)!=null?cssHeaderColumn.get(field):"";
     }
     
     public String getCssColumn(String field){

@@ -1,6 +1,6 @@
 package it.liverif.core.repository;
 
-import it.liverif.core.auth.beans.UserToken;
+import it.liverif.core.auth.AUserAuth;
 import it.liverif.core.exeptions.DatabaseException;
 import it.liverif.core.web.beans.SearchField;
 import it.liverif.core.web.view.detail.ADetailResponse;
@@ -16,13 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -37,10 +34,13 @@ import java.util.List;
 @Slf4j
 @Service
 @EnableTransactionManagement
-public abstract class AService<T extends AModelBean, J extends JpaRepository<T, Long> & IRepository<T>> {
+public abstract class AService<T extends AModelBean, J extends JpaRepository<T, Long> & IRepository<T>> extends AUserAuth {
 
     @Autowired
     HttpServletRequest request;
+
+    @Autowired
+    protected EntityManager entityManager;
     
     @Autowired
     protected J repository;
@@ -77,6 +77,10 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
         return null;
     }
 
+    public void detach(T entity){
+        entityManager.detach(entity);
+    }
+
     public abstract boolean beforeSave(T entity) throws Exception;
 
     public abstract void afterSave(T entity) throws Exception;
@@ -93,7 +97,7 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Long saveImmediate(T entity) throws Exception {
+    public Long saveImmediate(T entity) {
         entity.beforePersist();
         Long id = repository.save(entity).getId();
         return id;
@@ -134,7 +138,7 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void deleteImmediate(T entity) throws Exception {
+    public void deleteImmediate(T entity) {
         repository.delete(entity);
     }
 
@@ -157,29 +161,13 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
     }
 
     @Transactional(readOnly = true)
-    public List<T> list(List<Specification<T>> whereCondition) {
-        Specification<T> spec = null;
-        for (int i = 0; i < whereCondition.size(); i++) {
-            Specification<T> s = whereCondition.get(i);
-            if (i == 0)
-                spec = Specification.where(s);
-            else
-                spec = spec.and(s);
-        }
-        return repository.findAll(spec);
+    public List<T> list(Specification<T> specification) {
+        return repository.findAll(specification);
     }
 
     @Transactional(readOnly = true)
-    public List<T> list(List<Specification<T>> whereCondition,Sort sort) {
-        Specification<T> spec = null;
-        for (int i = 0; i < whereCondition.size(); i++) {
-            Specification<T> s = whereCondition.get(i);
-            if (i == 0)
-                spec = Specification.where(s);
-            else
-                spec = spec.and(s);
-        }
-        return repository.findAll(spec,sort);
+    public List<T> list(Specification<T> specification,Sort sort) {
+        return repository.findAll(specification,sort);
     }
 
     @Transactional(readOnly = true)
@@ -195,21 +183,12 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
     }
 
     @Transactional(readOnly = true)
-    public Long count(List<Specification<T>> whereCondition) {
-        Specification<T> spec = null;
-        for (int i = 0; i < whereCondition.size(); i++) {
-            Specification<T> s = whereCondition.get(i);
-            if (i == 0)
-                spec = Specification.where(s);
-            else
-                spec = spec.and(s);
-        }
-        return repository.count(spec);
+    public Long count(Specification<T> specification) {
+        return repository.count(specification);
     }
 
-    public Page<T> list(int pageSelected, int viewRowNumber, Sort sort, AListResponse listResponseModel) {
-        List<Specification<T>> whereCondition = new ArrayList();
-        return list(viewRowNumber, sort, listResponseModel, whereCondition);
+    public Page<T> list(int viewRowNumber, Sort sort, AListResponse listResponseModel) {
+        return list(viewRowNumber, sort, listResponseModel, null);
     }
 
     @Transactional(readOnly = true)
@@ -266,24 +245,6 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
         return page;
     }
 
-    protected UserToken getUser() {
-        UserToken userToken=new UserToken();
-        Authentication currentAuth= SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth!=null){
-            Object principal = currentAuth.getPrincipal();
-            if (principal instanceof UserDetails) {
-                UserDetails userDetail=(UserDetails) principal;
-                userToken.setUsername(userDetail.getUsername());
-                for(GrantedAuthority ga: userDetail.getAuthorities()){
-                    userToken.getRoles().add(ga.getAuthority().substring("ROLE_".length()));
-                }
-            } else {
-                userToken.setUsername(principal.toString());
-            }
-        }
-        return userToken;
-    }
-
     protected Object getHttpSession(String attribute) {
         return request.getSession().getAttribute(attribute);
     }
@@ -296,7 +257,7 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
         request.getSession().removeAttribute(attribute);
     }
 
-    protected AListResponse getListResponse() throws Exception{
+    protected AListResponse getListResponse() {
         return getListResponse(modelName());
     }
 
@@ -309,7 +270,7 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
         removeHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse(String modelName) throws Exception{
+    protected ADetailResponse getDetailResponse(String modelName) {
         ADetailResponse detailResponse = (ADetailResponse) getHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
         return detailResponse;
     }
@@ -318,7 +279,7 @@ public abstract class AService<T extends AModelBean, J extends JpaRepository<T, 
         removeHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse() throws Exception{
+    protected ADetailResponse getDetailResponse() {
         return getDetailResponse(modelName());
     }
 

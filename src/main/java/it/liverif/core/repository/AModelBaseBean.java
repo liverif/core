@@ -1,7 +1,6 @@
 package it.liverif.core.repository;
 
 import it.liverif.core.model.annotations.FieldOrder;
-
 import javax.persistence.*;
 
 @MappedSuperclass

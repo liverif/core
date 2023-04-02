@@ -7,9 +7,6 @@ import it.liverif.core.format.LocalTimeFormatter;
 import it.liverif.core.repository.AModelBean;
 import it.liverif.core.repository.FieldNameReserved;
 import it.liverif.core.utils.CommonUtils;
-import it.liverif.core.web.view.AAction;
-import it.liverif.core.web.view.detail.ADetailResponse;
-
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -47,7 +44,7 @@ public abstract class ARowList<T extends AModelBean, R extends AListResponse> {
         localDateTimeFormatter= new LocalDateTimeFormatter(message("format.datetime.pattern" ));
     }
     
-    public Map<String,String> create(T obj, Pair<List<String>,String> rowAction) throws Exception {
+    public Map<String,String> create(T obj, Pair<List<String>,String> rowAction) {
         String linkDetail="";
         if(obj.getViewButtonDetail()) linkDetail=rowAction.getSecond();;
         Map<String,String> row=new HashMap<>(
@@ -80,10 +77,6 @@ public abstract class ARowList<T extends AModelBean, R extends AListResponse> {
         String className=CommonUtils.removeEntitySuffix(modelEntityClass().getSimpleName());
         return StringUtils.uncapitalize(className);
     }
-    
-    protected String getScreenMode() {
-        return (String) getHttpSession(AAction.SCREENMODE);
-    }
 
     public String toHtml(Object value){
         String result="";
@@ -101,7 +94,7 @@ public abstract class ARowList<T extends AModelBean, R extends AListResponse> {
         return request.getSession().getAttribute(attribute);
     }
 
-    protected R getListResponse() throws Exception{
+    protected R getListResponse() {
         return (R) getListResponse(modelName());
     }
 
@@ -114,8 +107,9 @@ public abstract class ARowList<T extends AModelBean, R extends AListResponse> {
     public abstract List<String> getListColumn() throws Exception;
     public abstract Map<String,String> row(T obj, Pair<List<String>,String> rowAction) throws Exception;
     public abstract Map<String,String> cssColumn();
+    public abstract Map<String,String> cssHeaderColumn();
 
-    public String numberToString(BigDecimal value, String pattern) throws Exception {
+    public String numberToString(BigDecimal value, String pattern) {
         DecimalFormatter numberFormatter=new DecimalFormatter(pattern);
         String tovalue=numberFormatter.print(value,LocaleContextHolder.getLocale());
         return tovalue;

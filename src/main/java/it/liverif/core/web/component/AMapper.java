@@ -1,7 +1,6 @@
 package it.liverif.core.web.component;
 
 import it.liverif.core.repository.AModelBean;
-import it.liverif.core.repository.TableNameReserved;
 import it.liverif.core.utils.CommonUtils;
 import it.liverif.core.web.view.detail.ADetailResponse;
 import it.liverif.core.web.view.list.AListResponse;
@@ -45,7 +44,7 @@ public abstract class AMapper<T extends AModelBean, P extends ADetailResponse> {
         removeHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse(String modelName) throws Exception{
+    protected ADetailResponse getDetailResponse(String modelName) {
         ADetailResponse detailResponse = (ADetailResponse) getHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
         return detailResponse;
     }
@@ -54,7 +53,7 @@ public abstract class AMapper<T extends AModelBean, P extends ADetailResponse> {
         removeHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
     }
 
-    protected P getDetailResponse() throws Exception{
+    protected P getDetailResponse() {
         return (P) getDetailResponse(modelName());
     }
 

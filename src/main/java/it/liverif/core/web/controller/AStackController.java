@@ -26,7 +26,7 @@ public abstract class AStackController<T extends AModelBean,L extends AAttribute
         return attributeClass().getConstructor().newInstance();
     }
 
-    protected R resetList(List<SearchField> listSearch) throws Exception{
+    protected R resetList(List<SearchField> listSearch) throws Exception {
         L attribute=createAttribute();
         R listResponse = listResponseClass().getConstructor(attribute.getClass()).newInstance(attribute);
         setHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName(), listResponse);
@@ -98,7 +98,7 @@ public abstract class AStackController<T extends AModelBean,L extends AAttribute
         P detailResponse;
 
         ActionBean action=formAction();
-        log.debug("action="+action.getAction());
+        log.debug("formAction="+action.getAction());
 
         if (notContainHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName()) ||
                 StackWebEngine.Action.REFRESH.equals(stackAction())

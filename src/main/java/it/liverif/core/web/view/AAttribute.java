@@ -4,7 +4,6 @@ import it.liverif.core.web.beans.FieldTypeBean;
 import it.liverif.core.web.beans.SelectItem;
 import it.liverif.core.web.view.detail.DataAccess;
 import it.liverif.core.web.view.detail.IAttribute;
-
 import java.util.*;
 
 public abstract class AAttribute implements IAttribute {

@@ -18,13 +18,14 @@ import java.io.IOException;
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         String URL = request.getContextPath() + "/app";
 
         User user=(User) authentication.getPrincipal();
         HttpSession session = request.getSession(true);
 
         log.info("LOGIN SUCCESS - USER: " + user.getUsername() +
+                //" * SESSION-ID:" + session.getId() +
                 " * IP:" + LogUtils.getClientIP(request) +
                 " * USER-AGENT:" + LogUtils.getUserAgent(request));
 

@@ -3,7 +3,6 @@ package it.liverif.core.format;
 import org.springframework.util.StringUtils;
 import org.springframework.format.Formatter;
 import org.springframework.lang.Nullable;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -17,7 +16,7 @@ public class LocalDateFormatter implements Formatter<LocalDate> {
     }
     
     @Override
-    public @Nullable LocalDate parse(String text, Locale locale) throws ParseException {
+    public @Nullable LocalDate parse(String text, Locale locale) {
         if (!StringUtils.hasText(text)) return null;
         DateTimeFormatter dateFormat = createFormat(locale);
         return LocalDate.parse(text,dateFormat);

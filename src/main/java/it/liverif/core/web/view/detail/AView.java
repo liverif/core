@@ -1,6 +1,7 @@
 package it.liverif.core.web.view.detail;
 
-import it.liverif.core.auth.beans.UserToken;
+import it.liverif.core.auth.AUserAuth;
+import it.liverif.core.exeptions.ViewException;
 import it.liverif.core.web.beans.ActionBean;
 import it.liverif.core.web.beans.GenericParametersBean;
 import it.liverif.core.web.beans.StackWebBean;
@@ -8,20 +9,14 @@ import it.liverif.core.web.beans.StackWebConfig;
 import it.liverif.core.web.controller.ABaseController;
 import it.liverif.core.web.controller.JsonAction;
 import it.liverif.core.web.controller.StackWebEngine;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.util.Pair;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
-public abstract class AView {
+public abstract class AView extends AUserAuth {
 
     public static final String BREADCRUMB_HOME = "breadcrumb_home";
     public static final String BREADCRUMB_BACK = "breadcrumb_back";
@@ -153,31 +148,13 @@ public abstract class AView {
         return this.request.getSession().getAttribute(attribute);
     }
 
-    protected UserToken getUser() {
-        UserToken userToken=new UserToken();
-        Authentication currentAuth= SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth!=null){
-            Object principal = currentAuth.getPrincipal();
-            if (principal instanceof UserDetails) {
-                UserDetails userDetail=(UserDetails) principal;
-                userToken.setUsername(userDetail.getUsername());
-                for(GrantedAuthority ga: userDetail.getAuthorities()){
-                    userToken.getRoles().add(ga.getAuthority().substring("ROLE_".length()));
-                }
-            } else {
-                userToken.setUsername(principal.toString());
-            }
-        }
-        return userToken;
-    }
-
     protected GenericParametersBean requestGenericParameters(boolean validateSession) throws Exception {
         String generic = request.getParameter(ABaseController.REQUEST_GENERIC_PARAMETERS);
         GenericParametersBean genericParameters = jsonAction.decodeGenericParameters(generic);
         Long validator = (Long) request.getSession().getAttribute(JsonAction.SESSION_VALIDATOR);
         if (validateSession && !validator.toString().equals(genericParameters.getValidator())) {
             String val = genericParameters.getValidator();
-            throw new Exception("Not valid session: genericParameters.validator=" + val + " session.validator=" + validator);
+            throw new ViewException("Not valid session: genericParameters.validator=" + val + " session.validator=" + validator);
         } else {
             return genericParameters;
         }

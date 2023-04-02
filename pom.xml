@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>liverif.project</groupId>
     <artifactId>liverif-core</artifactId>
-    <version>1.2</version>
+    <version>1.3</version>
     <packaging>jar</packaging>
 
     <name>liverif-core</name>

@@ -1,7 +1,6 @@
 package it.liverif.core.component.crypt;
 
 import org.apache.commons.io.IOUtils;
-
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
@@ -11,10 +10,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Random;
 
 public abstract class ACryptSyncAES {
 
@@ -25,15 +22,24 @@ public abstract class ACryptSyncAES {
     public static final String DIGEST_ALGORITHM = "SHA-256";
     
     protected void encrypt(String key, InputStream is, OutputStream os, IvParameterSpec ips) throws Exception{
-        encryptOrDecrypt(key, Cipher.ENCRYPT_MODE, is, os, ips);
+        SecretKey aesKey = getKey(key);
+        encrypt(aesKey, is, os, ips);
     }
 
     protected void decrypt(String key, InputStream is, OutputStream os, IvParameterSpec ips) throws Exception {
-        encryptOrDecrypt(key, Cipher.DECRYPT_MODE, is, os, ips);
+        SecretKey aesKey = getKey(key);
+        decrypt(aesKey, is, os, ips);
     }
 
-    protected void encryptOrDecrypt(String key, int mode, InputStream is, OutputStream os, IvParameterSpec ips) throws Exception {
-        SecretKey aesKey = getKey(key);
+    protected void encrypt(SecretKey aesKey, InputStream is, OutputStream os, IvParameterSpec ips) throws Exception{
+        encryptOrDecrypt(aesKey, Cipher.ENCRYPT_MODE, is, os, ips);
+    }
+
+    protected void decrypt(SecretKey aesKey, InputStream is, OutputStream os, IvParameterSpec ips) throws Exception {
+        encryptOrDecrypt(aesKey, Cipher.DECRYPT_MODE, is, os, ips);
+    }
+
+    protected void encryptOrDecrypt(SecretKey aesKey, int mode, InputStream is, OutputStream os, IvParameterSpec ips) throws Exception {
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         if (mode == Cipher.ENCRYPT_MODE) {
             cipher.init(Cipher.ENCRYPT_MODE, aesKey, ips);

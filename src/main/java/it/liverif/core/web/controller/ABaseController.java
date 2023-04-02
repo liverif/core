@@ -1,6 +1,7 @@
 package it.liverif.core.web.controller;
 
-import it.liverif.core.auth.beans.UserToken;
+import it.liverif.core.auth.AUserAuth;
+import it.liverif.core.exeptions.ControllerException;
 import it.liverif.core.repository.AModelBean;
 import it.liverif.core.utils.CommonUtils;
 import it.liverif.core.web.beans.ActionBean;
@@ -10,7 +11,6 @@ import it.liverif.core.web.beans.StackWebConfig;
 import it.liverif.core.web.component.Notification;
 import it.liverif.core.web.view.detail.ADetailResponse;
 import it.liverif.core.web.view.list.AListResponse;
-
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,18 +20,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.servlet.LocaleResolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.Locale;
 
-public class ABaseController <T extends AModelBean, R extends AListResponse,P extends ADetailResponse> {
+public class ABaseController <T extends AModelBean, R extends AListResponse,P extends ADetailResponse> extends AUserAuth {
 
     public static final String REQUEST_GENERIC_PARAMETERS = "g";
     public static final String FORM_MODEL_ACTION = "model_action";
@@ -137,7 +134,7 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         Long validator = (Long) request.getSession().getAttribute(JsonAction.SESSION_VALIDATOR);
         if (validateSession && !validator.toString().equals(genericParameters.getValidator())) {
             String val = genericParameters.getValidator();
-            throw new Exception("Not valid session: genericParameters.validator=" + val + " session.validator=" + validator);
+            throw new ControllerException("Not valid session: genericParameters.validator=" + val + " session.validator=" + validator);
         } else {
             return genericParameters;
         }
@@ -181,7 +178,7 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         request.getSession().removeAttribute(attribute);
     }
 
-    protected R getListResponse() throws Exception{
+    protected R getListResponse(){
         return (R) getListResponse(modelName());
     }
 
@@ -194,7 +191,7 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         removeHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse(String modelName) throws Exception{
+    protected ADetailResponse getDetailResponse(String modelName){
         ADetailResponse detailResponse = (ADetailResponse) getHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
         return detailResponse;
     }
@@ -203,7 +200,7 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         removeHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
     }
 
-    protected P getDetailResponse() throws Exception{
+    protected P getDetailResponse(){
         return (P) getDetailResponse(modelName());
     }
 
@@ -232,7 +229,7 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         return StringUtils.hasText(request.getParameter("s"));
     }
     
-    protected boolean entityInChange() throws Exception {
+    protected boolean entityInChange(){
         P detailResponse=getDetailResponse();
         return (detailResponse.getRecord()!=null && detailResponse.getRecord().getId()>0L);
     }
@@ -242,7 +239,7 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         return detailResponse.getRecord().getId();
     }
 
-    public static HttpEntity<byte[]> downloadFile(byte[] file, String filename, String contenttype) throws Exception {
+    public static HttpEntity<byte[]> downloadFile(byte[] file, String filename, String contenttype) throws Exception, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write(file);
         HttpHeaders header = new HttpHeaders();
@@ -252,22 +249,4 @@ public class ABaseController <T extends AModelBean, R extends AListResponse,P ex
         return new HttpEntity(out.toByteArray(), header);
     }
 
-    protected UserToken getUser() {
-        UserToken userToken=new UserToken();
-        Authentication currentAuth= SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth!=null){
-            Object principal = currentAuth.getPrincipal();
-            if (principal instanceof UserDetails) {
-                UserDetails userDetail=(UserDetails) principal;
-                userToken.setUsername(userDetail.getUsername());
-                for(GrantedAuthority ga: userDetail.getAuthorities()){
-                    userToken.getRoles().add(ga.getAuthority().substring("ROLE_".length()));
-                }
-            } else {
-                userToken.setUsername(principal.toString());
-            }
-        }
-        return userToken;
-    }
-    
 }

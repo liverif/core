@@ -6,7 +6,6 @@ import it.liverif.core.web.component.AMapper;
 import it.liverif.core.web.component.Notification;
 import it.liverif.core.web.view.detail.ADetailResponse;
 import it.liverif.core.web.view.list.AListResponse;
-
 import org.springframework.util.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.validation.*;
@@ -16,6 +15,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
 @Component
@@ -114,7 +114,7 @@ public abstract class AValidator<T extends AModelBean, P extends ADetailResponse
         removeHttpSession(AListResponse.SESSION_LIST_RESPONSE_PREFIX + modelName);
     }
 
-    protected ADetailResponse getDetailResponse(String modelName) throws Exception{
+    protected ADetailResponse getDetailResponse(String modelName) {
         ADetailResponse detailResponse = (ADetailResponse) getHttpSession(ADetailResponse.SESSION_DETAIL_RESPONSE_PREFIX + modelName);
         return detailResponse;
     }
@@ -127,19 +127,19 @@ public abstract class AValidator<T extends AModelBean, P extends ADetailResponse
         return messageSource.getMessage(label, params, LocaleContextHolder.getLocale());
     }
 
-    protected String messageRequired(String field) throws Exception {
+    protected String messageRequired(String field) {
         return this.messageSource.getMessage("error.field.required", new String[]{(String)this.getDetailResponse().getAttribute().getLabel().get(field)}, LocaleContextHolder.getLocale());
     }
 
-    protected String messageNotValid(String field) throws Exception {
+    protected String messageNotValid(String field) {
         return this.messageSource.getMessage("error.field.notvalid", new String[]{(String)this.getDetailResponse().getAttribute().getLabel().get(field)}, LocaleContextHolder.getLocale());
     }
 
-    protected P getDetailResponse() throws Exception{
+    protected P getDetailResponse(){
         return (P) getDetailResponse(modelName());
     }
 
-    protected boolean entityInChange(T entityObj) throws Exception {
+    protected boolean entityInChange(T entityObj) {
         return (entityObj!=null && entityObj.getId()>0L);
     }
 
