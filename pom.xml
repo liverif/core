@@ -92,5 +92,12 @@
 	    </pluginManagement>
 	</build>
 
+    <distributionManagement>
+        <repository>
+            <id>github-liverif</id>
+            <name>GitHub LiverIf Core Package</name>
+            <url>https://maven.pkg.github.com/liverif/core</url>
+        </repository>
+    </distributionManagement>
   
 </project>
