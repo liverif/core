@@ -4,6 +4,7 @@ public class FieldNameReserved {
 
         public static final String ID="id";
         public static final String VER="ver";
+        public static final String ID_STORE="idStore";
         public static final String MODIFY_DATE="modifyDate";
         public static final String CREATE_DATE="createDate";
         public static final String MODIFY_BY="modifyBy";
