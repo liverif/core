@@ -7,6 +7,23 @@
     <packaging>jar</packaging>
 
     <name>liverif-core</name>
+    
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Iasparra Francesco</name>
+            <email>webmaster@netlogo.net</email>
+            <organization>LiverIf</organization>
+            <organizationUrl>https://www.liverif.it</organizationUrl>
+        </developer>
+    </developers>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
